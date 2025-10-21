@@ -56,6 +56,8 @@ import com.venus.backgroundopt.xposed.point.android.function.MemoryPressureHook;
 import com.venus.backgroundopt.xposed.point.android.function.OomAdjustHook;
 import com.venus.backgroundopt.xposed.point.android.function.StartHandleDefaultAppHook;
 
+import android.util.Log;
+
 import java.util.HashMap;
 
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
@@ -73,99 +75,122 @@ public class AndroidHookHandler extends PackageHook {
 
     @Override
     public void hook(XC_LoadPackage.LoadPackageParam packageParam) {
-        getLogger().info("模块信息: " + BuildConfig.VERSION_NAME + BuildConfig.SUFFIX + "_" + BuildConfig.REALEASE_TIME);
+        try {
+            getLogger().info("模块信息: " + BuildConfig.VERSION_NAME + BuildConfig.SUFFIX + "_" + BuildConfig.REALEASE_TIME);
 
-        ClassLoader classLoader = packageParam.classLoader;
-        RunningInfo runningInfo = new RunningInfo(classLoader);
+            ClassLoader classLoader = packageParam.classLoader;
+            RunningInfo runningInfo = new RunningInfo(classLoader);
 
-        ProcessList.init();
-        initSystemProp();
+            ProcessList.init();
+            initSystemProp();
 
-        // 资源Hook
-//        new ResourcesHook(classLoader, runningInfo);
+            // 资源Hook
+    //        new ResourcesHook(classLoader, runningInfo);
 
-        // hook获取
-//        new DeviceConfigHook(classLoader, runningInfo);
-        new DeviceConfigHookNew(classLoader, runningInfo);
+            // hook获取
+    //        new DeviceConfigHook(classLoader, runningInfo);
+            new DeviceConfigHookNew(classLoader, runningInfo);
 
-        // 抓取AMS, 前后台切换
-        new ActivitySwitchHook(classLoader, runningInfo);
-        new ActivityManagerServiceHook(classLoader, runningInfo);
-        new ActivityManagerServiceHookKt(classLoader, runningInfo);
+            // 抓取AMS, 前后台切换
+            new ActivitySwitchHook(classLoader, runningInfo);
+            new ActivityManagerServiceHook(classLoader, runningInfo);
+            new ActivityManagerServiceHookKt(classLoader, runningInfo);
 
-        // 默认桌面
-        new PackageManagerServiceHookKt(classLoader, runningInfo);
+            // 默认桌面
+            new PackageManagerServiceHookKt(classLoader, runningInfo);
 
-        // 杀后台hook
-//        new ProcessHook(classLoader, runningInfo);
-//        new ProcessHookKt(classLoader, runningInfo);
+            // 杀后台hook
+    //        new ProcessHook(classLoader, runningInfo);
+    //        new ProcessHookKt(classLoader, runningInfo);
 
-        // oom_adj更新hook
-        // 2024.3.2: 禁用以通过ProcessList.setOomAdj知晓系统给予当前进程的oom_score_adj
-        /*if (CommonProperties.INSTANCE.getOomWorkModePref().getOomMode() == OomWorkModePref.MODE_STRICT) {
-            new ProcessStateRecordHook(classLoader, runningInfo);
-        }*/
-        new ProcessListHookKt(classLoader, runningInfo);
+            // oom_adj更新hook
+            // 2024.3.2: 禁用以通过ProcessList.setOomAdj知晓系统给予当前进程的oom_score_adj
+            /*if (CommonProperties.INSTANCE.getOomWorkModePref().getOomMode() == OomWorkModePref.MODE_STRICT) {
+                new ProcessStateRecordHook(classLoader, runningInfo);
+            }*/
+            new ProcessListHookKt(classLoader, runningInfo);
 
-        // 安卓虚进程处理hook
-        new PhantomProcessListHook(classLoader, runningInfo);
+            // 安卓虚进程处理hook
+            new PhantomProcessListHook(classLoader, runningInfo);
 
-//        new ActivityManagerConstantsHook(classLoader, runningInfo);
+    //        new ActivityManagerConstantsHook(classLoader, runningInfo);
 
-        // 最近任务可见性hook
-        new RecentTasksHook(classLoader, runningInfo);
+            // 最近任务可见性hook
+            new RecentTasksHook(classLoader, runningInfo);
 
-        // 软件卸载
-        // 安卓12在PackageManagerServiceHook完成
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {    // 安卓13
-            new DeletePackageHelperHook(classLoader, runningInfo);
+            // 软件卸载
+            // 安卓12在PackageManagerServiceHook完成
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {    // 安卓13
+                new DeletePackageHelperHook(classLoader, runningInfo);
+            }
+
+            new SystemPropertiesHook(classLoader, runningInfo);
+
+            // new RoleControllerManagerHook(classLoader, runningInfo);
+
+            new LowMemDetectorHook(classLoader, runningInfo);
+
+            new AppProfilerHook(classLoader, runningInfo);
+
+            new ProcessListHookNew(classLoader, runningInfo);
+
+            new OomAdjusterHookNew(classLoader, runningInfo);
+
+            new ActivityManagerServiceHookNew(classLoader, runningInfo);
+
+            new CachedAppOptimizerHook(classLoader, runningInfo);
+
+            new PackageManagerServiceHookNew(classLoader, runningInfo);
+
+            new ServiceManagerHook(classLoader, runningInfo);
+
+            new ActivityTaskSupervisorHook(classLoader, runningInfo);
+
+            new PowerManagerServiceHook(classLoader, runningInfo);
+
+            new ActivityManagerConstantsHookNew(classLoader, runningInfo);
+
+            new ProcessRecordHook(classLoader, runningInfo);
+
+            new WindowProcessControllerHook(classLoader, runningInfo);
+
+            new DefaultApplicationChangeHook(classLoader, runningInfo);
+
+            new CleanUpRemovedTaskHook(classLoader, runningInfo);
+
+            new RoleManagerServiceHook(classLoader, runningInfo);
+
+            new MemoryPressureHook(classLoader, runningInfo);
+
+            new StartHandleDefaultAppHook(classLoader, runningInfo);
+
+            new CurComputedAdjHook(classLoader, runningInfo);
+
+            new UserManagerServiceHook(classLoader, runningInfo);
+
+            new OomAdjustHook(classLoader, runningInfo);
+        } catch (Throwable throwable) {
+            Log.e("BackgroundOpt_Hook", "!!!!!!!!!! HOOK INITIALIZATION FAILED, CATCH BLOCK ENTERED !!!!!!!!!!");
+
+            if (throwable == null) {
+                Log.e("BackgroundOpt_Hook", "Caught throwable is NULL. This is extremely unusual.");
+                return;
+            }
+
+            Log.e("BackgroundOpt_Hook", "Exception Class: " + throwable.getClass().getName());
+            Log.e("BackgroundOpt_Hook", "Exception Message: " + throwable.getMessage());
+
+            Log.e("BackgroundOpt_Hook", "--- STACK TRACE START ---");
+            StackTraceElement[] stackTrace = throwable.getStackTrace();
+            if (stackTrace != null && stackTrace.length > 0) {
+                for (StackTraceElement element : stackTrace) {
+                    Log.e("BackgroundOpt_Hook", "    at " + element.toString());
+                }
+            } else {
+                Log.e("BackgroundOpt_Hook", "STACK TRACE IS EMPTY. This indicates a fast-throw/stackless exception.");
+            }
+            Log.e("BackgroundOpt_Hook", "--- STACK TRACE END ---");
         }
-
-        new SystemPropertiesHook(classLoader, runningInfo);
-
-        // new RoleControllerManagerHook(classLoader, runningInfo);
-
-        new LowMemDetectorHook(classLoader, runningInfo);
-
-        new AppProfilerHook(classLoader, runningInfo);
-
-        new ProcessListHookNew(classLoader, runningInfo);
-
-        new OomAdjusterHookNew(classLoader, runningInfo);
-
-        new ActivityManagerServiceHookNew(classLoader, runningInfo);
-
-        new CachedAppOptimizerHook(classLoader, runningInfo);
-
-        new PackageManagerServiceHookNew(classLoader, runningInfo);
-
-        new ServiceManagerHook(classLoader, runningInfo);
-
-        new ActivityTaskSupervisorHook(classLoader, runningInfo);
-
-        new PowerManagerServiceHook(classLoader, runningInfo);
-
-        new ActivityManagerConstantsHookNew(classLoader, runningInfo);
-
-        new ProcessRecordHook(classLoader, runningInfo);
-
-        new WindowProcessControllerHook(classLoader, runningInfo);
-
-        new DefaultApplicationChangeHook(classLoader, runningInfo);
-
-        new CleanUpRemovedTaskHook(classLoader, runningInfo);
-
-        new RoleManagerServiceHook(classLoader, runningInfo);
-
-        new MemoryPressureHook(classLoader, runningInfo);
-
-        new StartHandleDefaultAppHook(classLoader, runningInfo);
-
-        new CurComputedAdjHook(classLoader, runningInfo);
-
-        new UserManagerServiceHook(classLoader, runningInfo);
-
-        new OomAdjustHook(classLoader, runningInfo);
     }
 
     private void initSystemProp() {
