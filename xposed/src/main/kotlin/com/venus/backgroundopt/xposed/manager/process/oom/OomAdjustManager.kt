@@ -78,7 +78,7 @@ class OomAdjustManager(
             }
 
             OomWorkModePref.MODE_NEGATIVE -> NegativeModeOomAdjHandler()
-            6 -> SimpleModeOomAdjHandler()
+
             else -> {
                 StrictSecondaryModeOomAdjHandler()
             }

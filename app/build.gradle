@@ -23,6 +23,15 @@ android {
 //        }
     }
 
+    signingConfigs {
+        release {
+            storeFile file('my-release-key.keystore')
+            storePassword System.getenv('SIGNING_KEY_STORE_PASSWORD')
+            keyAlias System.getenv('SIGNING_KEY_ALIAS')
+            keyPassword System.getenv('SIGNING_KEY_PASSWORD')
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
@@ -31,6 +40,8 @@ android {
             versionNameSuffix rootProject.ext.suffix
 
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules2.pro', 'proguard-log.pro'
+
+            signingConfig signingConfigs.release
         }
 
         debug {
@@ -55,8 +66,7 @@ android {
         variant ->
             variant.outputs.configureEach {
                 //这里修改apk文件名
-//                outputFileName = "backgroundOpt_v${defaultConfig.versionName}_vc${defaultConfig.versionCode}" + generateSuffix() + "_" + releaseTime() + ".apk"
-                outputFileName = "backgroundOpt_v${defaultConfig.versionName}" + rootProject.ext.suffix + "_" + rootProject.ext.releaseTime + ".apk"
+                outputFileName = "backgroundOpt_v${defaultConfig.versionName}" + rootProject.ext.suffix + ".apk"
             }
     }
 }

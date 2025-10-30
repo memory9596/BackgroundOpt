@@ -73,7 +73,7 @@ public class AndroidHookHandler extends PackageHook {
 
     @Override
     public void hook(XC_LoadPackage.LoadPackageParam packageParam) {
-        getLogger().info("模块信息: " + BuildConfig.VERSION_NAME + BuildConfig.SUFFIX + "_" + BuildConfig.REALEASE_TIME);
+        getLogger().info("模块信息: " + BuildConfig.VERSION_NAME + BuildConfig.SUFFIX);
 
         ClassLoader classLoader = packageParam.classLoader;
         RunningInfo runningInfo = new RunningInfo(classLoader);
